@@ -1,47 +1,60 @@
 
 import streamlit as st
+import json
 
-# --- UEFA 2025–26 Clubs (shortened for example; extend in practice)
-qualified_clubs = [
-    {"name": "Fiorentina", "country": "ITA", "competition": "UECL", "stage": "League"},
-    {"name": "Nottingham Forest", "country": "ENG", "competition": "UECL", "stage": "League"},
-    {"name": "Rayo Vallecano", "country": "ESP", "competition": "UECL", "stage": "League"},
-    {"name": "Mainz 05", "country": "GER", "competition": "UECL", "stage": "League"},
-    {"name": "Strasbourg", "country": "FRA", "competition": "UECL", "stage": "League"},
-    {"name": "AZ Alkmaar", "country": "NLD", "competition": "UECL", "stage": "League"},
-    {"name": "Santa Clara", "country": "PRT", "competition": "UECL", "stage": "League"},
-    {"name": "Sparta Praha", "country": "CZE", "competition": "UECL", "stage": "League"},
-]
+# Load clubs data from JSON file
+@st.cache_data
+def load_clubs():
+    with open("clubs.json", "r", encoding="utf-8") as f:
+        return json.load(f)
 
-exclusions = {
-    ("KOS", "SRB"),
-    ("ARM", "AZE"),
-    ("UKR", "RUS"),
-}
+clubs_data = load_clubs()
+club_names = sorted([club["name"] for club in clubs_data])
+
+# Create mapping from name to full club data
+club_lookup = {club["name"]: club for club in clubs_data}
+
+# UI Layout
+st.set_page_config(page_title="UEFA Club Match Possibility", layout="wide")
+st.markdown("<h1 style='text-align: center;'>🔍 UEFA Club Match Checker 2025/26</h1>", unsafe_allow_html=True)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    club1_name = st.selectbox("Choose Club 1", club_names, key="club1")
+
+with col2:
+    club2_name = st.selectbox("Choose Club 2", club_names, key="club2")
+
+# Club details
+club1 = club_lookup[club1_name]
+club2 = club_lookup[club2_name]
 
 def can_meet(club1, club2):
+    if club1["name"] == club2["name"]:
+        return False, "Same club selected."
+    if "Russia" in (club1["country"], club2["country"]):
+        return False, "Russian clubs are suspended from UEFA competitions."
+    blocked_pairs = [
+        ("Serbia", "Kosovo"),
+        ("Kosovo", "Serbia"),
+        ("Armenia", "Azerbaijan"),
+        ("Azerbaijan", "Armenia")
+    ]
+    if (club1["country"], club2["country"]) in blocked_pairs:
+        return False, f"Clubs from {club1['country']} and {club2['country']} cannot meet due to geopolitical restrictions."
     if club1["country"] == club2["country"]:
-        return "⚠️ Same country: Can only meet in knockout rounds"
-    countries = {club1["country"], club2["country"]}
-    if tuple(countries) in exclusions or tuple(reversed(tuple(countries))) in exclusions:
-        return "🚫 Cannot meet due to geopolitical restrictions"
-    if club1["stage"] == "League" and club2["stage"] == "League":
-        return "✅ Can meet after League Phase (not in group draw)"
-    return "✅ They can meet"
+        if club1["stage"] == "Group" and club2["stage"] == "Group":
+            return False, "Clubs from the same country cannot be drawn together in the group stage."
+    return True, f"{club1['name']} and {club2['name']} could meet in a later stage of UEFA competition."
 
-# --- Streamlit UI
-st.title("🏆 UEFA Club Match Checker")
-st.markdown("Check if two UEFA clubs can meet in 2025–26 European competitions")
+can_meet_result, reason = can_meet(club1, club2)
 
-club_names = [club["name"] for club in qualified_clubs]
-club1_name = st.selectbox("Select Club 1", club_names)
-club2_name = st.selectbox("Select Club 2", club_names, index=1)
-
-club1 = next(c for c in qualified_clubs if c["name"] == club1_name)
-club2 = next(c for c in qualified_clubs if c["name"] == club2_name)
-
-if club1_name == club2_name:
-    st.warning("Please select two different clubs.")
-else:
-    result = can_meet(club1, club2)
-    st.success(f"{club1_name} vs {club2_name}: {result}")
+# Result Box
+result_color = "green" if can_meet_result else "red"
+result_html = f"""
+<div style='margin-top:20px;padding:20px;background-color:{result_color};color:white;border-radius:10px;text-align:center;font-size:20px'>
+    {reason}
+</div>
+"""
+st.markdown(result_html, unsafe_allow_html=True)
