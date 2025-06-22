@@ -23,9 +23,9 @@ stage_full_names = {
 
 # Use PNG logos for Streamlit compatibility
 competition_logos = {
-    "UCL": "https://assets.uefa.com/uefachampionsleague/img/logos/uefa-champions-league.png",
-    "UEL": "https://assets.uefa.com/uefaeuropaleague/img/logos/uefa-europa-league.png",
-    "UECL": "https://assets.uefa.com/uefaeuropaconferenceleague/img/logos/uefa-europa-conference-league.png"
+    "UCL": "https://www.citypng.com/photo/2a898f22/uefa-champions-league-official-logo",
+    "UEL": "https://www.citypng.com/photo/b3ef997b/uefa-europa-league-logo",
+    "UECL": "https://www.fifplay.com/uel-logo/"
 }
 
 sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
