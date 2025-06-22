@@ -46,7 +46,7 @@ def get_club_info(name):
 club1 = get_club_info(selected_club_1)
 club2 = get_club_info(selected_club_2)
 
-def image_html(url, height=60):
+def image_html(url, height=100):
     return f"<img src='{url}' height='{height}' style='vertical-align: middle; object-fit: contain;'/>"
 
 def show_club_info(club):
