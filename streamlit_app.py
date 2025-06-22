@@ -21,13 +21,13 @@ stage_full_names = {
     "F": "Final"
 }
 
+# Use PNG logos for Streamlit compatibility
 competition_logos = {
-    "UCL": "https://upload.wikimedia.org/wikipedia/en/b/bf/UEFA_Champions_League_logo_2.svg",
-    "UEL": "https://upload.wikimedia.org/wikipedia/en/1/15/UEFA_Europa_League_logo_2015.svg",
-    "UECL": "https://upload.wikimedia.org/wikipedia/en/3/3d/UEFA_Conference_League_Logo.svg"
+    "UCL": "https://upload.wikimedia.org/wikipedia/en/9/92/UEFA_Champions_League_logo_2.png",
+    "UEL": "https://upload.wikimedia.org/wikipedia/en/1/15/UEFA_Europa_League_logo_2015.png",
+    "UECL": "https://upload.wikimedia.org/wikipedia/en/e/e7/UEFA_Conference_League_logo.png"
 }
 
-# Sort clubs by name
 sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
 club_names = [club["club"] for club in sorted_clubs]
 
@@ -63,7 +63,7 @@ def show_club_info(club):
     with c2:
         comp_logo_url = competition_logos.get(club["competition"])
         if comp_logo_url:
-            st.image(comp_logo_url, width=90)  # 75% width of crest
+            st.image(comp_logo_url, width=90)  # 75% size of crest
         else:
             st.write("No competition logo")
 
@@ -71,22 +71,21 @@ def show_club_info(club):
         entry_stage_name = stage_full_names.get(club["entry_stage"], club["entry_stage"])
         st.markdown(f"**{entry_stage_name}**")
 
-show_club_info(club1)
-show_club_info(club2)
+# Place club infos side by side:
+info_col1, info_col2 = st.columns(2)
+
+with info_col1:
+    show_club_info(club1)
+
+with info_col2:
+    show_club_info(club2)
 
 def can_meet(club1, club2):
-    # Basic validation
     if not club1 or not club2 or club1 == club2:
         return False, "Please select two different clubs."
 
-    # If different competitions, generally cannot meet
     if club1["competition"] != club2["competition"]:
-        # Exception: teams dropping from UCL to UEL or UECL may meet some teams there
-        # For example, a UCL Q2 loser moves to UEL Q3 or PO
-        # Implement example logic:
-
         if club1["competition"] == "UCL" and club2["competition"] in ("UEL", "UECL"):
-            # Check stages for plausible crossing
             if club1["entry_stage"] in ("Q2", "Q3", "PO") and club2["entry_stage"] in ("Q3", "PO", "GS"):
                 return True, f"{club1['club']} could meet {club2['club']} because UCL teams dropping down join later rounds of {club2['competition']}."
         if club2["competition"] == "UCL" and club1["competition"] in ("UEL", "UECL"):
@@ -94,32 +93,27 @@ def can_meet(club1, club2):
                 return True, f"{club2['club']} could meet {club1['club']} because UCL teams dropping down join later rounds of {club1['competition']}."
         return False, f"{club1['club']} and {club2['club']} are in different competitions and typically cannot meet."
 
-    # Same competition, same country rule for Group Stage
     if club1["country"] == club2["country"]:
         if club1["entry_stage"] == "GS" and club2["entry_stage"] == "GS":
             return False, "Same country clubs cannot meet in the Group Stage."
 
-    # Example: blocked pairs (serbia-kosovo, armenia-azerbaijan)
     blocked_pairs = [("Serbia", "Kosovo"), ("Armenia", "Azerbaijan")]
     for c1, c2 in blocked_pairs:
         if {club1["country"], club2["country"]} == {c1, c2}:
             return False, f"Clubs from {c1} and {c2} cannot meet due to political restrictions."
 
-    # Probability logic (example: very low chance if clubs are in very different stages)
     stages_order = ["Q1", "Q2", "Q3", "PO", "GS", "R32", "R16", "QF", "SF", "F"]
     stage1_idx = stages_order.index(club1["entry_stage"]) if club1["entry_stage"] in stages_order else -1
     stage2_idx = stages_order.index(club2["entry_stage"]) if club2["entry_stage"] in stages_order else -1
 
     diff = abs(stage1_idx - stage2_idx)
     if diff > 3:
-        return False, f"Very unlikely to meet due to large stage difference."
+        return False, "Very unlikely to meet due to large stage difference."
 
-    # Default allow with note
-    return True, "These clubs can potentially meet depending on the competition progress and draws."
+    return True, "These clubs can potentially meet depending on competition progress and draws."
 
 can_play, message = can_meet(club1, club2)
 
-# Result with color
 result_color = "green" if can_play else "red"
 st.markdown(
     f"<div style='padding: 1em; background-color: {result_color}; color: white; text-align: center; font-size: 1.2em;'>"
