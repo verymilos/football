@@ -42,17 +42,26 @@ def show_club_info(club):
     if not club:
         st.write("Club info not found")
         return
+
     cols = st.columns([1, 0.75])  # crest and competition logo side by side
     with cols[0]:
         crest_url = club.get("crest_url")
-        if crest_url:
-            st.image(crest_url, width=120)
-else:
-    st.write("No crest available")
+        if crest_url and isinstance(crest_url, str) and crest_url.strip():
+            try:
+                st.image(crest_url, width=120)
+            except Exception as e:
+                st.write(f"Crest image failed to load: {e}")
+        else:
+            st.write("No crest available")
+
     with cols[1]:
         comp_logo = competition_logos.get(club.get("competition"))
-        if comp_logo:
-            st.image(comp_logo, width=90)
+        if comp_logo and isinstance(comp_logo, str) and comp_logo.strip():
+            try:
+                st.image(comp_logo, width=90)
+            except Exception as e:
+                st.write(f"Competition logo failed to load: {e}")
+
     entry_stage_full = stage_full_names.get(club.get("entry_stage"), club.get("entry_stage"))
     st.markdown(f"**Entry Stage:** {entry_stage_full}")
 
