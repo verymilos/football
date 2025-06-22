@@ -3,11 +3,11 @@ import json
 
 # Map short stages to full plain English
 stage_names = {
-    "q1": "First Qualifying Round",
-    "q2": "Second Qualifying Round",
-    "q3": "Third Qualifying Round",
-    "playoff": "Playoff Round",
-    "group stage": "Group Stage",
+    "Q1": "First Qualifying Round",
+    "Q2": "Second Qualifying Round",
+    "Q3": "Third Qualifying Round",
+    "Playoffs": "Playoff Round",
+    "GS": "Group Stage",
     "r32": "Round of 32",
     "r16": "Round of 16",
     "quarterfinal": "Quarterfinals",
