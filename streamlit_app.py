@@ -30,7 +30,6 @@ club1 = get_club_info(selected_club_1)
 club2 = get_club_info(selected_club_2)
 
 # Display club info
-st.markdown("### Club Info")
 info_col1, info_col2 = st.columns(2)
 
 with info_col1:
