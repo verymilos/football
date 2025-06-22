@@ -17,9 +17,9 @@ stage_full_names = {
 
 # Competition logos URLs (Wikimedia Commons)
 competition_logos = {
-    "UCL": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f8/UEFA_Champions_League_logo_2.svg/120px-UEFA_Champions_League_logo_2.svg.png",
-    "UEL": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3d/UEFA_Europa_League_logo.svg/120px-UEFA_Europa_League_logo.svg.png",
-    "UECL": "https://upload.wikimedia.org/wikipedia/en/thumb/6/65/UEFA_Europa_Conference_League_logo.svg/120px-UEFA_Europa_Conference_League_logo.svg.png"
+    "UCL": "https://static.uefa.com/mediaservices/mediaimages/2023/06/21/04a17a81-e6c4-4881-8c8d-8d0d6dd81206/uefa-champions-league-logo-2023.png",
+    "UEL": "https://static.uefa.com/mediaservices/mediaimages/2023/06/21/3b6a3ef1-9f03-4c45-80d4-98c2cc67e1f3/uefa-europa-league-logo-2023.png",
+    "UECL": "https://static.uefa.com/mediaservices/mediaimages/2023/06/21/32e90cc9-81b3-4f1b-9819-30e7cfe7e7de/uefa-europa-conference-league-logo-2023.png"
 }
 
 @st.cache_data
