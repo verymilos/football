@@ -36,14 +36,14 @@ info_col1, info_col2 = st.columns(2)
 with info_col1:
     st.markdown(f"**{club1['club']} ({club1['country']})**")
     st.markdown(f"Competition: {club1['competition']}")
-    st.markdown(f"Stage: {club1['stage']}")
+    st.markdown(f"Stage: {club1['entry_stage']}")
     if club1.get("path"):
         st.markdown(f"Path: {club1['path']}")
 
 with info_col2:
     st.markdown(f"**{club2['club']} ({club2['country']})**")
     st.markdown(f"Competition: {club2['competition']}")
-    st.markdown(f"Stage: {club2['stage']}")
+    st.markdown(f"Stage: {club2['entry_stage']}")
     if club2.get("path"):
         st.markdown(f"Path: {club2['path']}")
 
