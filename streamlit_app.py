@@ -37,10 +37,19 @@ option_to_name = {option: club['club'] for option, club in zip(club_options, sor
 col1, col2 = st.columns(2)
 
 with col1:
-    selected_club_1 = st.selectbox("Select Club 1", club_names, key="club1")
+    # Show crest above dropdown
+    selected_option_1 = st.selectbox("Select Club 1", club_options, key="club1")
+    club1_name = option_to_name[selected_option_1]
+    club1 = next((club for club in clubs_data if club["club"] == club1_name), None)
+    if club1 and club1.get("crest_url"):
+        st.image(club1["crest_url"], width=100)
 
 with col2:
-    selected_club_2 = st.selectbox("Select Club 2", club_names, key="club2")
+    selected_option_2 = st.selectbox("Select Club 2", club_options, key="club2")
+    club2_name = option_to_name[selected_option_2]
+    club2 = next((club for club in clubs_data if club["club"] == club2_name), None)
+    if club2 and club2.get("crest_url"):
+        st.image(club2["crest_url"], width=100)
 
 # Retrieve full club info
 def get_club_info(name):
