@@ -24,7 +24,7 @@ with col2:
 
 # Retrieve full club info
 def get_club_info(name):
-    return next((club for club in clubs_data if club["name"] == name), None)
+    return next((club for club in clubs_data if club["club"] == name), None)
 
 club1 = get_club_info(selected_club_1)
 club2 = get_club_info(selected_club_2)
