@@ -44,7 +44,11 @@ def show_club_info(club):
         return
     cols = st.columns([1, 0.75])  # crest and competition logo side by side
     with cols[0]:
-        st.image(club.get("crest_url"), width=120)
+        crest_url = club.get("crest_url")
+        if crest_url:
+            st.image(crest_url, width=120)
+else:
+    st.write("No crest available")
     with cols[1]:
         comp_logo = competition_logos.get(club.get("competition"))
         if comp_logo:
