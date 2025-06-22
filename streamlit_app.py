@@ -133,7 +133,11 @@ def can_meet(club1, club2):
     # Same country restrictions for group stage and R16 in UCL and UEL
     if country1 == country2 and comp1 == comp2:
         if "GS" in (stage1, stage2):
-            return False, f"Same-country clubs cannot meet in the Group Stage of {comp1}."
+            return False, (
+            f"Same-country clubs cannot be drawn into the same Group Stage in {comp1}, "
+            "but they may meet from the knockout rounds onward."
+        )
+
         if comp1 in ["UCL", "UEL"]:
             if "R16" in (stage1, stage2):
                 return False, f"Same-country clubs cannot meet in the Round of 16 of {comp1}."
