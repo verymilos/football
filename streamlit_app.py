@@ -11,7 +11,7 @@ clubs_data = load_clubs()
 
 # Sort clubs alphabetically
 sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
-club_names = [club["name"] for club in sorted_clubs]
+club_names = [club["club"] for club in sorted_clubs]
 
 # Club selection UI
 col1, col2 = st.columns(2)
