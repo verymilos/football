@@ -13,6 +13,26 @@ clubs_data = load_clubs()
 sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
 club_names = [club["club"] for club in sorted_clubs]
 
+# Flag emoji in dropdowns
+def country_to_flag(country):
+    flags = {
+        "France": "🇫🇷",
+        "Spain": "🇪🇸",
+        "England": "🇬🇧",
+        "Germany": "🇩🇪",
+        "Italy": "🇮🇹",
+        # add all needed countries here
+    }
+    return flags.get(country, "")
+
+# Prepare dropdown options with flags
+club_options = [
+    f"{country_to_flag(club['country'])} {club['club']}" for club in sorted_clubs
+]
+
+# Map from dropdown string back to club name (without flag)
+option_to_name = {option: club['club'] for option, club in zip(club_options, sorted_clubs)}
+
 # Club selection UI
 col1, col2 = st.columns(2)
 
