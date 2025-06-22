@@ -1,127 +1,128 @@
 import streamlit as st
 import json
 
+# Map short stages to full plain English
+stage_names = {
+    "q1": "First Qualifying Round",
+    "q2": "Second Qualifying Round",
+    "q3": "Third Qualifying Round",
+    "playoff": "Playoff Round",
+    "group stage": "Group Stage",
+    "r32": "Round of 32",
+    "r16": "Round of 16",
+    "quarterfinal": "Quarterfinals",
+    "semifinal": "Semifinals",
+    "final": "Final",
+}
+
+def pretty_stage(stage_raw: str) -> str:
+    if not stage_raw:
+        return "N/A"
+    stage_lower = stage_raw.lower()
+    for key in stage_names:
+        if key in stage_lower:
+            rest = stage_raw[len(key):].strip()
+            return stage_names[key] + (" " + rest if rest else "")
+    return stage_raw
+
+# Load clubs data from JSON
 @st.cache_data
 def load_clubs():
     with open("clubs.json", "r", encoding="utf-8") as f:
         return json.load(f)
 
 clubs_data = load_clubs()
+
+# Sort clubs alphabetically by club name
 sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
 club_names = [club["club"] for club in sorted_clubs]
 
+# UI: Club selection dropdowns
+col1, col2 = st.columns(2)
+with col1:
+    selected_club_1 = st.selectbox("Select Club 1", club_names, key="club1")
+with col2:
+    selected_club_2 = st.selectbox("Select Club 2", club_names, key="club2")
+
+# Helper: get club info by name
 def get_club_info(name):
     return next((club for club in clubs_data if club["club"] == name), None)
 
-col1, col2 = st.columns(2)
+club1 = get_club_info(selected_club_1)
+club2 = get_club_info(selected_club_2)
 
+# Display club crests above dropdowns (optional, if you have URLs)
 with col1:
-    selected_club_1 = st.selectbox("Select Club 1", club_names, key="club1")
-    club1 = get_club_info(selected_club_1)
-
     if club1 and club1.get("crest_url"):
         st.image(club1["crest_url"], width=100)
-
-    if club1:
-        st.markdown(f"**Country:** {club1['country']}")
-        st.markdown(f"**Competition:** {club1['competition']}")
-        st.markdown(f"**Entry Stage:** {club1.get('entry_stage', 'N/A')}")
-        if club1.get("path"):
-            st.markdown(f"**Path:** {club1['path']}")
-
 with col2:
-    selected_club_2 = st.selectbox("Select Club 2", club_names, key="club2")
-    club2 = get_club_info(selected_club_2)
-
     if club2 and club2.get("crest_url"):
         st.image(club2["crest_url"], width=100)
 
+# Display club info below dropdowns, without repeating name
+with col1:
+    if club1:
+        st.markdown(f"**Country:** {club1['country']}")
+        st.markdown(f"**Competition:** {club1['competition']}")
+        st.markdown(f"**Entry Stage:** {pretty_stage(club1.get('entry_stage', 'N/A'))}")
+        if club1.get("path"):
+            st.markdown(f"**Path:** {club1['path']}")
+with col2:
     if club2:
         st.markdown(f"**Country:** {club2['country']}")
         st.markdown(f"**Competition:** {club2['competition']}")
-        st.markdown(f"**Entry Stage:** {club2.get('entry_stage', 'N/A')}")
+        st.markdown(f"**Entry Stage:** {pretty_stage(club2.get('entry_stage', 'N/A'))}")
         if club2.get("path"):
             st.markdown(f"**Path:** {club2['path']}")
 
-# Helper to identify if a club can drop from one competition to another based on stage
-def drops_to_competition(club):
-    # Simplified mapping for this example; extend as needed
-    comp = club["competition"]
-    stage = club.get("entry_stage", "").lower()
-    
-    if comp == "UCL":
-        # UCL losers drop to UEL depending on stage
-        if stage.startswith("q1"):
-            return ("UEL", "Q2")
-        elif stage.startswith("q2"):
-            return ("UEL", "Q3")
-        elif stage.startswith("q3") or stage.startswith("playoff"):
-            return ("UEL", "Group Stage")
-        else:
-            return None
-    elif comp == "UEL":
-        # UEL losers drop to UECL depending on stage
-        if stage.startswith("q1"):
-            return ("UECL", "Q2")
-        elif stage.startswith("q2"):
-            return ("UECL", "Q3")
-        elif stage.startswith("q3") or stage.startswith("playoff"):
-            return ("UECL", "Group Stage")
-        else:
-            return None
-    else:
-        return None
-
+# Logic to determine if clubs can meet (more strict, simplified example)
 def can_meet(club1, club2):
     if not club1 or not club2 or club1 == club2:
         return False, "Invalid club selection."
 
-    # Same country and same competition restriction in group stage
+    # Same country restriction applies only in Group Stage of same competition
     if club1["country"] == club2["country"] and club1["competition"] == club2["competition"]:
-        return True, ("These clubs are from the same country and in the same competition. "
-                      "Due to UEFA rules, they can only meet **after** the Group Stage.")
+        return True, "These clubs can meet only after the Group Stage due to same-country restriction."
 
-    # Russian clubs currently suspended example
-    if "Russia" in [club1["country"], club2["country"]]:
-        return False, "Russian clubs are suspended from UEFA competitions."
+    # Suspended countries example (customize as needed)
+    suspended_countries = ["Russia"]
+    if club1["country"] in suspended_countries or club2["country"] in suspended_countries:
+        return False, "One or both clubs are from suspended countries and cannot meet."
 
-    # Political restrictions example
+    # Political restrictions (simplified)
     blocked_pairs = [
         ("Serbia", "Kosovo"),
         ("Armenia", "Azerbaijan"),
     ]
     for c1, c2 in blocked_pairs:
         if {club1["country"], club2["country"]} == {c1, c2}:
-            return False, f"Clubs from {c1} and {c2} are not allowed to face each other in UEFA competitions."
+            return False, f"Clubs from {c1} and {c2} are not allowed to meet."
 
-    # Check if clubs are in the same competition
-    if club1["competition"] == club2["competition"]:
-        return True, f"Both clubs compete in the {club1['competition']} and can potentially meet depending on the tournament draw and stages."
+    # More refined logic based on competition and entry stage
+    # Example: If UCL club lost in Q2, goes to UEL, might meet certain clubs there, etc.
+    # This would require more detailed competition progression logic, here simplified:
 
-    # Check if one can drop from one competition to another where the other club is present
-    club1_drops = drops_to_competition(club1)
-    club2_drops = drops_to_competition(club2)
+    # If competitions are different, allow meeting only if path of relegation possible
+    comp_pairs_allowed = {
+        ("UCL", "UEL"),
+        ("UEL", "UECL"),
+        ("UEL", "UCL"),
+        ("UECL", "UEL"),
+    }
+    if (club1["competition"], club2["competition"]) not in comp_pairs_allowed and club1["competition"] != club2["competition"]:
+        return False, "Clubs in these different competitions typically do not meet."
 
-    # club1 drops into club2's competition
-    if club1_drops and club1_drops[0] == club2["competition"]:
-        return True, (f"{club1['club']} starts in {club1['competition']} {club1['entry_stage']} and if they lose, "
-                      f"they drop to {club2['competition']} {club1_drops[1]}, where they might meet {club2['club']}.")
+    # You can add custom logic based on entry_stage to refine probabilities or restrictions here
 
-    # club2 drops into club1's competition
-    if club2_drops and club2_drops[0] == club1["competition"]:
-        return True, (f"{club2['club']} starts in {club2['competition']} {club2['entry_stage']} and if they lose, "
-                      f"they drop to {club1['competition']} {club2_drops[1]}, where they might meet {club1['club']}.")
-
-    # Otherwise, different competitions and no known drop path
-    return False, (f"{club1['club']} competes in {club1['competition']} and {club2['club']} in {club2['competition']}. "
-                   "They are unlikely to meet this season unless competition rules change.")
+    return True, f"These clubs can potentially meet in {club1['competition']} or {club2['competition']} depending on results."
 
 can_play, message = can_meet(club1, club2)
 
+# Display result with color feedback
 st.markdown("### Result")
-color = "green" if can_play else "red"
+result_color = "green" if can_play else "red"
 st.markdown(
-    f"<div style='padding: 1em; background-color: {color}; color: white; text-align: center; font-size: 1.2em;'>"
+    f"<div style='padding: 1em; background-color: {result_color}; color: white; text-align: center; font-size: 1.2em;'>"
     f"{message}"
     "</div>",
     unsafe_allow_html=True,
