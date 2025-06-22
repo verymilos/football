@@ -3,11 +3,12 @@ import json
 
 # Map short stages to full plain English
 stage_names = {
-    "Q1": "First Qualifying Round",
-    "Q2": "Second Qualifying Round",
-    "Q3": "Third Qualifying Round",
-    "Playoffs": "Playoff Round",
-    "GS": "Group Stage",
+    "q1": "First Qualifying Round",
+    "q2": "Second Qualifying Round",
+    "q3": "Third Qualifying Round",
+    "playoff": "Playoff Round",
+    "gs": "Group Stage",
+    "group stage": "Group Stage",
     "r32": "Round of 32",
     "r16": "Round of 16",
     "quarterfinal": "Quarterfinals",
@@ -15,15 +16,20 @@ stage_names = {
     "final": "Final",
 }
 
-def pretty_stage(stage_raw: str) -> str:
+def pretty_stage(stage_raw):
     if not stage_raw:
         return "N/A"
-    stage_lower = stage_raw.lower()
-    for key in stage_names:
-        if key in stage_lower:
-            rest = stage_raw[len(key):].strip()
-            return stage_names[key] + (" " + rest if rest else "")
-    return stage_raw
+    s = stage_raw.strip().lower()
+    # Exact match first
+    if s in stage_names:
+        return stage_names[s]
+    # Check if any key is substring in s (for longer strings)
+    for key, val in stage_names.items():
+        if key in s:
+            return val
+    # fallback: just capitalize
+    return stage_raw.title()
+
 
 # Load clubs data from JSON
 @st.cache_data
