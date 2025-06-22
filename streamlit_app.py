@@ -20,7 +20,7 @@ competition_logos = {
     "UECL": "https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/UEFA_Europa_Conference_League_logo.svg/1200px-UEFA_Europa_Conference_League_logo.svg.png",
 }
 
-# Mapping entry_stage codes to full English
+# Entry stage code to full name
 stage_full_names = {
     "Q1": "First Qualifying Round",
     "Q2": "Second Qualifying Round",
@@ -33,8 +33,8 @@ stage_full_names = {
     "F": "Final"
 }
 
+# Select clubs UI
 col1, col2 = st.columns(2)
-
 with col1:
     selected_club_1 = st.selectbox("Select Club 1", club_names, key="club1")
 with col2:
@@ -70,81 +70,118 @@ def show_club_info(club):
     st.markdown(f"Entry stage: **{entry_stage}**")
 
 info_col1, info_col2 = st.columns(2)
-
 with info_col1:
     show_club_info(club1)
 with info_col2:
     show_club_info(club2)
 
+# Helper: define stage order for comparison
+stages_order = ["Q1", "Q2", "Q3", "PO", "GS", "R16", "QF", "SF", "F"]
 
-def can_meet(c1, c2):
-    if not c1 or not c2 or c1 == c2:
+# Define competition flow (who can drop where)
+# For example, UCL Q2 losers enter UEL Q3, etc.
+competition_flow = {
+    "UCL": {
+        "Q1": ("UCL", "Q2"),  # winners go up in UCL qualifiers
+        "Q2": ("UEL", "Q3"),  # losers drop to UEL Q3
+        "Q3": ("UEL", "PO"),  # losers drop to UEL PO
+        "PO": ("UEL", "GS"),  # losers drop to UEL GS
+        "GS": ("UCL", None),  # group stage
+        # knockout stages stay in UCL
+    },
+    "UEL": {
+        "Q1": ("UEL", "Q2"),
+        "Q2": ("UEL", "Q3"),
+        "Q3": ("UECL", "PO"),
+        "PO": ("UEL", "GS"),
+        "GS": ("UEL", None),
+    },
+    "UECL": {
+        "Q1": ("UECL", "Q2"),
+        "Q2": ("UECL", "PO"),
+        "PO": ("UECL", "GS"),
+        "GS": ("UECL", None),
+    }
+}
+
+def stage_index(stage_code):
+    try:
+        return stages_order.index(stage_code)
+    except ValueError:
+        return -1
+
+def can_meet(club1, club2):
+    # Basic checks
+    if not club1 or not club2 or club1 == club2:
         return False, "Invalid club selection."
 
-    # Clubs in different competitions can only meet if one drops down to another competition (e.g. UCL Q2 losers go to UEL Q3)
-    # Very simplified example:
-    comp1, comp2 = c1["competition"], c2["competition"]
-    stage1, stage2 = c1.get("entry_stage"), c2.get("entry_stage")
-    country1, country2 = c1["country"], c2["country"]
+    c1_name = club1["club"]
+    c2_name = club2["club"]
+    comp1, comp2 = club1["competition"], club2["competition"]
+    stage1, stage2 = club1.get("entry_stage"), club2.get("entry_stage")
+    country1, country2 = club1["country"], club2["country"]
 
-    # If clubs are in different comps, only meet if path exists (simplified):
-    # Example: UCL Q1/Q2 loser drops to UEL Q2/Q3
-    ucl_to_uel = {
-        "Q1": "Q1",
-        "Q2": "Q2",
-        "Q3": "PO",
-        "PO": "GS"
-    }
-    if comp1 != comp2:
-        # Check if club1 drops to club2's comp stage or vice versa
-        if comp1 == "UCL" and comp2 == "UEL":
-            if ucl_to_uel.get(stage1, "") == stage2:
-                return True, f"{c1['club']} can meet {c2['club']} after dropping from UCL to UEL."
-            else:
-                return False, f"{c1['club']} and {c2['club']} unlikely to meet as competition paths don't align."
-        if comp2 == "UCL" and comp1 == "UEL":
-            if ucl_to_uel.get(stage2, "") == stage1:
-                return True, f"{c2['club']} can meet {c1['club']} after dropping from UCL to UEL."
-            else:
-                return False, f"{c1['club']} and {c2['club']} unlikely to meet as competition paths don't align."
-
-        # Similar logic can be added for UEL->UECL paths if needed
-
-        return False, f"{c1['club']} and {c2['club']} compete in different competitions and unlikely to meet."
-
-    # If same competition:
-
-    # Same country clubs cannot meet in Group Stage
-    if country1 == country2 and comp1 == comp2:
-        if stage1 == "GS" or stage2 == "GS":
-            return False, "Same-country clubs cannot meet in Group Stage."
-
-    # Only meet if stages overlap logically - simplified:
-    stages_order = ["Q1", "Q2", "Q3", "PO", "GS", "R16", "QF", "SF", "F"]
-    if stage1 not in stages_order or stage2 not in stages_order:
-        return False, "Unknown stages prevent meeting."
-
-    idx1 = stages_order.index(stage1)
-    idx2 = stages_order.index(stage2)
-
-    if abs(idx1 - idx2) > 2:
-        return False, "Clubs at very different stages unlikely to meet."
-
-    # Exclusions example (Serbia vs Kosovo)
+    # Check geopolitical exclusions
     blocked_pairs = [
-        ("Serbia", "Kosovo"),
-        ("Armenia", "Azerbaijan")
+        {"Serbia", "Kosovo"},
+        {"Armenia", "Azerbaijan"},
     ]
-    if {country1, country2} in [set(pair) for pair in blocked_pairs]:
-        return False, f"Clubs from {country1} and {country2} are not allowed to meet."
+    for pair in blocked_pairs:
+        if {country1, country2} == pair:
+            return False, f"Clubs from {country1} and {country2} cannot meet due to geopolitical restrictions."
 
-    return True, "These clubs can potentially meet in UEFA competitions."
+    # Same country restriction in group stage and early knockouts
+    if country1 == country2 and comp1 == comp2:
+        # No same country teams in group stage
+        if "GS" in (stage1, stage2):
+            return False, f"Same-country clubs cannot meet in the Group Stage of {comp1}."
+        # No same country teams in round of 16 of UCL and UEL
+        if comp1 in ["UCL", "UEL"]:
+            if "R16" in (stage1, stage2):
+                return False, f"Same-country clubs cannot meet in the Round of 16 of {comp1}."
 
-can_play, message = can_meet(club1, club2)
+    # If clubs in different competitions, check if path exists
+    if comp1 != comp2:
+        # Check if club1 can drop to comp2 stage or vice versa via competition flow
+        def path_exists(from_comp, from_stage, to_comp, to_stage):
+            # Recursively check if from_comp/stage can drop to to_comp/to_stage
+            current_comp, current_stage = from_comp, from_stage
+            for _ in range(5):  # avoid infinite loops, max depth
+                if current_comp == to_comp and current_stage == to_stage:
+                    return True
+                if current_stage not in competition_flow.get(current_comp, {}):
+                    break
+                next_comp, next_stage = competition_flow[current_comp][current_stage]
+                if not next_stage:
+                    break
+                current_comp, current_stage = next_comp, next_stage
+            return False
 
-st.markdown("### Result")
-color = "green" if can_play else "red"
-st.markdown(
-    f"<div style='padding: 1em; background-color: {color}; color: white; text-align: center; font-weight: bold;'>"
-    f"{message}</div>", unsafe_allow_html=True
-)
+        if path_exists(comp1, stage1, comp2, stage2):
+            return True, f"{c1_name} may face {c2_name} after dropping from {comp1} {stage_full_names.get(stage1, stage1)} to {comp2} {stage_full_names.get(stage2, stage2)}."
+        if path_exists(comp2, stage2, comp1, stage1):
+            return True, f"{c2_name} may face {c1_name} after dropping from {comp2} {stage_full_names.get(stage2, stage2)} to {comp1} {stage_full_names.get(stage1, stage1)}."
+        return False, f"No direct competition path to meet between {c1_name} in {comp1} and {c2_name} in {comp2} at their stages."
+
+    # If same competition, check stage overlap
+    idx1 = stage_index(stage1)
+    idx2 = stage_index(stage2)
+
+    if idx1 == -1 or idx2 == -1:
+        return False, "Unknown stages for one or both clubs."
+
+    # They can meet if stages overlap or one stage immediately precedes another (allowing knockouts etc)
+    if abs(idx1 - idx2) > 2:
+        return False, f"Clubs are at very different stages ({stage_full_names.get(stage1, stage1)} vs {stage_full_names.get(stage2, stage2)}) and unlikely to meet."
+
+    # Additional checks for knockout stages
+    knockout_stages = ["R16", "QF", "SF", "F"]
+    if stage1 in knockout_stages and stage2 in knockout_stages:
+        # Same knockout round or adjacent rounds can meet (e.g. QF vs SF is unlikely but possible later)
+        # Simplify: allow meeting if rounds are same or differ by 1
+        if abs(idx1 - idx2) > 1:
+            return False, f"Clubs are at knockout stages too far apart ({stage_full_names.get(stage1, stage1)} vs {stage_full_names.get(stage2, stage2)})."
+
+    return True, f"{c1_name} and {c2_name} can potentially meet in {comp1} during or after the {stage_full_names.get(stage1, stage1)}."
+
+can_play, message =
