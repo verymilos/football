@@ -1,7 +1,7 @@
 import streamlit as st
 import json
 
-# Map short stages to full plain English
+# Map short stage codes to full names
 stage_names = {
     "q1": "First Qualifying Round",
     "q2": "Second Qualifying Round",
@@ -20,16 +20,19 @@ def pretty_stage(stage_raw):
     if not stage_raw:
         return "N/A"
     s = stage_raw.strip().lower()
-    # Exact match first
     if s in stage_names:
         return stage_names[s]
-    # Check if any key is substring in s (for longer strings)
     for key, val in stage_names.items():
         if key in s:
             return val
-    # fallback: just capitalize
     return stage_raw.title()
 
+# Competition logos URLs (replace with your own URLs or public URLs)
+competition_logos = {
+    "UCL": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/UEFA_Champions_League_logo_2.svg/120px-UEFA_Champions_League_logo_2.svg.png",
+    "UEL": "https://upload.wikimedia.org/wikipedia/en/thumb/6/6e/UEFA_Europa_League_logo_2021.svg/120px-UEFA_Europa_League_logo_2021.svg.png",
+    "UECL": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3d/UEFA_Conference_League_logo.svg/120px-UEFA_Conference_League_logo.svg.png",
+}
 
 # Load clubs data from JSON
 @st.cache_data
@@ -43,93 +46,53 @@ clubs_data = load_clubs()
 sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
 club_names = [club["club"] for club in sorted_clubs]
 
-# UI: Club selection dropdowns
-col1, col2 = st.columns(2)
-with col1:
-    selected_club_1 = st.selectbox("Select Club 1", club_names, key="club1")
-with col2:
-    selected_club_2 = st.selectbox("Select Club 2", club_names, key="club2")
-
-# Helper: get club info by name
+# Helper to get club info by name
 def get_club_info(name):
     return next((club for club in clubs_data if club["club"] == name), None)
 
-club1 = get_club_info(selected_club_1)
-club2 = get_club_info(selected_club_2)
+# UI layout
+col1, col2 = st.columns(2)
 
-# Display club crests above dropdowns (optional, if you have URLs)
 with col1:
-    if club1 and club1.get("crest_url"):
-        st.image(club1["crest_url"], width=100)
-with col2:
-    if club2 and club2.get("crest_url"):
-        st.image(club2["crest_url"], width=100)
-
-# Display club info below dropdowns, without repeating name
-with col1:
+    st.image(competition_logos.get("UCL"), width=120, caption="UEFA Champions League")
+    selected_club_1 = st.selectbox("Select Club 1", club_names, key="club1")
+    club1 = get_club_info(selected_club_1)
     if club1:
-        st.markdown(f"**Country:** {club1['country']}")
-        st.markdown(f"**Competition:** {club1['competition']}")
-        st.markdown(f"**Entry Stage:** {pretty_stage(club1.get('entry_stage', 'N/A'))}")
-        if club1.get("path"):
-            st.markdown(f"**Path:** {club1['path']}")
-with col2:
-    if club2:
-        st.markdown(f"**Country:** {club2['country']}")
-        st.markdown(f"**Competition:** {club2['competition']}")
-        st.markdown(f"**Entry Stage:** {pretty_stage(club2.get('entry_stage', 'N/A'))}")
-        if club2.get("path"):
-            st.markdown(f"**Path:** {club2['path']}")
+        st.markdown(f"**Entry Stage:** {pretty_stage(club1.get('entry_stage'))}")
 
-# Logic to determine if clubs can meet (more strict, simplified example)
+with col2:
+    st.image(competition_logos.get("UEL"), width=120, caption="UEFA Europa League")
+    selected_club_2 = st.selectbox("Select Club 2", club_names, key="club2")
+    club2 = get_club_info(selected_club_2)
+    if club2:
+        st.markdown(f"**Entry Stage:** {pretty_stage(club2.get('entry_stage'))}")
+
+# Your existing logic for can_meet() here (not repeated for brevity)...
+
+# Logic to determine if clubs can meet
 def can_meet(club1, club2):
     if not club1 or not club2 or club1 == club2:
         return False, "Invalid club selection."
 
-    # Same country restriction applies only in Group Stage of same competition
     if club1["country"] == club2["country"] and club1["competition"] == club2["competition"]:
-        return True, "These clubs can meet only after the Group Stage due to same-country restriction."
+        return True, "They can only meet after the Group Stage due to same-country restriction."
 
-    # Suspended countries example (customize as needed)
-    suspended_countries = ["Russia"]
-    if club1["country"] in suspended_countries or club2["country"] in suspended_countries:
-        return False, "One or both clubs are from suspended countries and cannot meet."
+    if "Russia" in [club1["country"], club2["country"]]:
+        return False, "Russian clubs are suspended from UEFA competitions."
 
-    # Political restrictions (simplified)
     blocked_pairs = [
         ("Serbia", "Kosovo"),
-        ("Armenia", "Azerbaijan"),
+        ("Armenia", "Azerbaijan")
     ]
     for c1, c2 in blocked_pairs:
         if {club1["country"], club2["country"]} == {c1, c2}:
-            return False, f"Clubs from {c1} and {c2} are not allowed to meet."
+            return False, f"{c1} and {c2} clubs are not allowed to meet in UEFA competitions."
 
-    # More refined logic based on competition and entry stage
-    # Example: If UCL club lost in Q2, goes to UEL, might meet certain clubs there, etc.
-    # This would require more detailed competition progression logic, here simplified:
-
-    # If competitions are different, allow meeting only if path of relegation possible
-    comp_pairs_allowed = {
-        ("UCL", "UEL"),
-        ("UEL", "UECL"),
-        ("UEL", "UCL"),
-        ("UECL", "UEL"),
-    }
-    if (club1["competition"], club2["competition"]) not in comp_pairs_allowed and club1["competition"] != club2["competition"]:
-        return False, "Clubs in these different competitions typically do not meet."
-
-    # You can add custom logic based on entry_stage to refine probabilities or restrictions here
-
-    return True, f"These clubs can potentially meet in {club1['competition']} or {club2['competition']} depending on results."
+    return True, "These clubs can potentially meet in UEFA competitions."
 
 can_play, message = can_meet(club1, club2)
 
-# Display result with color feedback
+# Show result with color feedback
 st.markdown("### Result")
 result_color = "green" if can_play else "red"
-st.markdown(
-    f"<div style='padding: 1em; background-color: {result_color}; color: white; text-align: center; font-size: 1.2em;'>"
-    f"{message}"
-    "</div>",
-    unsafe_allow_html=True,
-)
+st.markdown(f"<div style='padding: 1em; background-color: {result_color}; color: white; text-align: center; font-size: 1.2em;'>{message}</div>", unsafe_allow_html=True)
