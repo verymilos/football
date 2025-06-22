@@ -15,9 +15,9 @@ club_names = [c["club"] for c in sorted_clubs]
 
 # Competition logos URLs (static, from Wikipedia)
 competition_logos = {
-    "UCL": "https://upload.wikimedia.org/wikipedia/en/thumb/0/04/UEFA_Champions_League_logo_2.svg/1200px-UEFA_Champions_League_logo_2.svg.png",
-    "UEL": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/UEFA_Europa_League_logo_2015.svg/1200px-UEFA_Europa_League_logo_2015.svg.png",
-    "UECL": "https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/UEFA_Europa_Conference_League_logo.svg/1200px-UEFA_Europa_Conference_League_logo.svg.png",
+    "UCL": "https://upload.wikimedia.org/wikipedia/en/f/f5/UEFA_Champions_League.svg",
+    "UEL": "https://upload.wikimedia.org/wikipedia/en/7/73/UEFA_Europa_League_2024.png",
+    "UECL": "https://upload.wikimedia.org/wikipedia/commons/4/4b/UEFA_Conference_League_full_logo_%282024_version%29.svg",
 }
 
 # Entry stage code to full name
