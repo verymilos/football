@@ -46,8 +46,8 @@ def get_club_info(name):
 club1 = get_club_info(selected_club_1)
 club2 = get_club_info(selected_club_2)
 
-def image_html(url, width):
-    return f"<img src='{url}' width='{width}' style='vertical-align: middle;'/>"
+def image_html(url, height=60):
+    return f"<img src='{url}' height='{height}' style='vertical-align: middle; object-fit: contain;'/>"
 
 def show_club_info(club):
     if not club:
@@ -67,7 +67,7 @@ def show_club_info(club):
             st.write("No crest available")
     with c2:
         if comp in competition_logos:
-            st.markdown(image_html(competition_logos[comp], 90), unsafe_allow_html=True)
+            st.markdown(image_html(competition_logos[comp]), unsafe_allow_html=True)
         else:
             st.write("No competition logo")
     st.markdown(f"Entry stage: **{entry_stage}**")
