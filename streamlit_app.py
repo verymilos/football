@@ -1,7 +1,7 @@
 import streamlit as st
 import json
 
-# Load club data
+# Load clubs data from JSON
 @st.cache_data
 def load_clubs():
     with open("clubs.json", "r", encoding="utf-8") as f:
@@ -9,80 +9,71 @@ def load_clubs():
 
 clubs_data = load_clubs()
 
-# Create a dictionary for quick access
-club_dict = {club['name']: club for club in clubs_data}
-club_names = list(club_dict.keys())
+# Sort clubs alphabetically
+sorted_clubs = sorted(clubs_data, key=lambda x: x["name"])
+club_names = [club["name"] for club in sorted_clubs]
 
-# Function to simulate competition path logic
-def can_meet(club1, club2):
-    if club1['country'] == club2['country']:
-        if club1['competition'] == club2['competition'] and club1['entry_stage'] == "Group Stage":
-            return False, "Clubs from the same country cannot meet in the group stage."
-
-    # Exclusion rules
-    exclusions = [
-        ("Serbia", "Kosovo"),
-        ("Armenia", "Azerbaijan"),
-        ("Russia", None)
-    ]
-
-    for c1, c2 in exclusions:
-        if (club1['country'] == c1 and club2['country'] == c2) or (club1['country'] == c2 and club2['country'] == c1):
-            return False, f"Due to geopolitical rules, clubs from {c1} and {c2} cannot meet."
-        if club1['country'] == c1 or club2['country'] == c1:
-            if c2 is None:
-                return False, f"Clubs from {c1} are currently excluded from UEFA competitions."
-
-    # Determine possible competitions via path rules
-    def get_possible_comps(club):
-        comp = club['competition']
-        stage = club['entry_stage']
-        if comp == 'UCL':
-            if stage in ['Q1', 'Q2', 'Q3', 'PO']:
-                return ['UCL', 'UEL', 'UECL']
-            else:
-                return ['UCL']
-        elif comp == 'UEL':
-            if stage in ['Q2', 'Q3', 'PO']:
-                return ['UEL', 'UECL']
-            else:
-                return ['UEL']
-        elif comp == 'UECL':
-            return ['UECL']
-        return [comp]
-
-    comps1 = set(get_possible_comps(club1))
-    comps2 = set(get_possible_comps(club2))
-
-    shared = comps1 & comps2
-    if shared:
-        shared_str = ', '.join(shared)
-        return True, f"Yes, the clubs can meet in: {shared_str}."
-    else:
-        return False, "They play in separate competitions with no overlapping stages."
-
-# Streamlit UI
-st.set_page_config(page_title="UEFA Club Meeting Checker", layout="wide")
-st.title("UEFA 2025–26 Club Meeting Possibility")
-
-col1, col2 = st.columns([1, 1])
+# Club selection UI
+col1, col2 = st.columns(2)
 
 with col1:
-    club1_name = st.selectbox("Select Club 1", club_names, key="club1")
-    club1 = club_dict[club1_name]
-    st.image(club1.get("crest", ""), width=64)
+    selected_club_1 = st.selectbox("Select Club 1", club_names, key="club1")
 
 with col2:
-    club2_name = st.selectbox("Select Club 2", club_names, key="club2")
-    club2 = club_dict[club2_name]
-    st.image(club2.get("crest", ""), width=64)
+    selected_club_2 = st.selectbox("Select Club 2", club_names, key="club2")
 
-can_play, reason = can_meet(club1, club2)
+# Retrieve full club info
+def get_club_info(name):
+    return next((club for club in clubs_data if club["name"] == name), None)
 
-color = "#d4edda" if can_play else "#f8d7da"
-st.markdown(f"""
-<div style='margin-top: 20px; padding: 20px; background-color: {color}; border-radius: 8px; border: 1px solid #ccc;'>
-  <strong>Can they meet?</strong><br>
-  {reason}
-</div>
-""", unsafe_allow_html=True)
+club1 = get_club_info(selected_club_1)
+club2 = get_club_info(selected_club_2)
+
+# Display club info
+st.markdown("### Club Info")
+info_col1, info_col2 = st.columns(2)
+
+with info_col1:
+    st.markdown(f"**{club1['name']} ({club1['country']})**")
+    st.markdown(f"Competition: {club1['competition']}")
+    st.markdown(f"Stage: {club1['stage']}")
+    if club1.get("path"):
+        st.markdown(f"Path: {club1['path']}")
+
+with info_col2:
+    st.markdown(f"**{club2['name']} ({club2['country']})**")
+    st.markdown(f"Competition: {club2['competition']}")
+    st.markdown(f"Stage: {club2['stage']}")
+    if club2.get("path"):
+        st.markdown(f"Path: {club2['path']}")
+
+# Logic to determine if clubs can meet
+def can_meet(club1, club2):
+    if not club1 or not club2 or club1 == club2:
+        return False, "Invalid club selection."
+
+    # Same country clubs can't meet in Group Stage
+    if club1["country"] == club2["country"] and club1["competition"] == club2["competition"]:
+        return True, "They can only meet after the Group Stage due to same-country restriction."
+
+    # Russian clubs currently suspended (example logic, customize as needed)
+    if "Russia" in [club1["country"], club2["country"]]:
+        return False, "Russian clubs are suspended from UEFA competitions."
+
+    # Serbia vs Kosovo, Armenia vs Azerbaijan exclusions (simplified)
+    blocked_pairs = [
+        ("Serbia", "Kosovo"),
+        ("Armenia", "Azerbaijan")
+    ]
+    for c1, c2 in blocked_pairs:
+        if {club1["country"], club2["country"]} == {c1, c2}:
+            return False, f"{c1} and {c2} clubs are not allowed to meet in UEFA competitions."
+
+    return True, "These clubs can potentially meet in UEFA competitions."
+
+can_play, message = can_meet(club1, club2)
+
+# Display result with color feedback
+st.markdown("### Result")
+result_color = "green" if can_play else "red"
+st.markdown(f"<div style='padding: 1em; background-color: {result_color}; color: white; text-align: center; font-size: 1.2em;'>\n{message}\n</div>", unsafe_allow_html=True)
