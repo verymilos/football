@@ -1,6 +1,28 @@
 import streamlit as st
 import json
 
+# Emoji flags helper (convert country name to flag emoji)
+def country_to_emoji(country):
+    # Map common countries to their regional indicator symbols
+    # You can extend this map as needed
+    mapping = {
+        "England": "🇬🇧",
+        "Spain": "🇪🇸",
+        "Germany": "🇩🇪",
+        "France": "🇫🇷",
+        "Italy": "🇮🇹",
+        "Portugal": "🇵🇹",
+        "Netherlands": "🇳🇱",
+        "Belgium": "🇧🇪",
+        "Russia": "🇷🇺",
+        "Serbia": "🇷🇸",
+        "Kosovo": "🇽🇰",
+        "Armenia": "🇦🇲",
+        "Azerbaijan": "🇦🇿",
+        # Add more as needed
+    }
+    return mapping.get(country, "🏳️")  # Default white flag if unknown
+
 # Load clubs data from JSON
 @st.cache_data
 def load_clubs():
@@ -9,73 +31,57 @@ def load_clubs():
 
 clubs_data = load_clubs()
 
-# Sort clubs alphabetically
-sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
-club_names = [club["club"] for club in sorted_clubs]
-
-# Flag emoji in dropdowns
-def country_to_flag(country):
-    flags = {
-        "France": "🇫🇷",
-        "Spain": "🇪🇸",
-        "England": "🇬🇧",
-        "Germany": "🇩🇪",
-        "Italy": "🇮🇹",
-        # add all needed countries here
-    }
-    return flags.get(country, "")
-
-# Prepare dropdown options with flags
-club_options = [
-    f"{country_to_flag(club['country'])} {club['club']}" for club in sorted_clubs
-]
-
-# Map from dropdown string back to club name (without flag)
-option_to_name = {option: club['club'] for option, club in zip(club_options, sorted_clubs)}
-
-# Club selection UI
-col1, col2 = st.columns(2)
-
-with col1:
-    # Show crest above dropdown
-    selected_option_1 = st.selectbox("Select Club 1", club_options, key="club1")
-    club1_name = option_to_name[selected_option_1]
-    club1 = next((club for club in clubs_data if club["club"] == club1_name), None)
-    if club1 and club1.get("crest_url"):
-        st.image(club1["crest_url"], width=100)
-
-with col2:
-    selected_option_2 = st.selectbox("Select Club 2", club_options, key="club2")
-    club2_name = option_to_name[selected_option_2]
-    club2 = next((club for club in clubs_data if club["club"] == club2_name), None)
-    if club2 and club2.get("crest_url"):
-        st.image(club2["crest_url"], width=100)
-
-# Retrieve full club info
+# Helper to get club info by name
 def get_club_info(name):
     return next((club for club in clubs_data if club["club"] == name), None)
 
-club1 = get_club_info(selected_club_1)
-club2 = get_club_info(selected_club_2)
+# Sort clubs alphabetically
+sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
 
-# Display club info without repeating club name
+# Build dropdown options with emoji flags + club name
+club_names = [f"{country_to_emoji(club['country'])} {club['club']}" for club in sorted_clubs]
+
+# Map displayed name back to club name only (strip emoji and space)
+def extract_club_name(display_name):
+    return display_name.split(" ", 1)[1]
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("### Club 1 Crest")
+    selected_display_1 = st.selectbox("Select Club 1", club_names, key="club1")
+    selected_club_1 = extract_club_name(selected_display_1)
+    club1 = get_club_info(selected_club_1)
+    if club1 and club1.get("crest_url"):
+        st.image(club1["crest_url"], width=100)
+    st.markdown(f"Country: {country_to_emoji(club1['country'])} {club1['country']}")
+
+with col2:
+    st.markdown("### Club 2 Crest")
+    selected_display_2 = st.selectbox("Select Club 2", club_names, key="club2")
+    selected_club_2 = extract_club_name(selected_display_2)
+    club2 = get_club_info(selected_club_2)
+    if club2 and club2.get("crest_url"):
+        st.image(club2["crest_url"], width=100)
+    st.markdown(f"Country: {country_to_emoji(club2['country'])} {club2['country']}")
+
+# Display club info below (without repeating club name)
+st.markdown("### Club Info")
+
 info_col1, info_col2 = st.columns(2)
-
 with info_col1:
     if club1:
-        st.markdown(f"Country: {club1.get('country', 'N/A')}")
-        st.markdown(f"Competition: {club1.get('competition', 'N/A')}")
-        st.markdown(f"Stage: {club1.get('entry_stage', 'N/A')}")
+        st.markdown(f"**Competition:** {club1['competition']}")
+        st.markdown(f"**Entry Stage:** {club1['entry_stage']}")
         if club1.get("path"):
-            st.markdown(f"Path: {club1['path']}")
+            st.markdown(f"**Path:** {club1['path']}")
 
 with info_col2:
     if club2:
-        st.markdown(f"Country: {club2.get('country', 'N/A')}")
-        st.markdown(f"Competition: {club2.get('competition', 'N/A')}")
-        st.markdown(f"Stage: {club2.get('entry_stage', 'N/A')}")
+        st.markdown(f"**Competition:** {club2['competition']}")
+        st.markdown(f"**Entry Stage:** {club2['entry_stage']}")
         if club2.get("path"):
-            st.markdown(f"Path: {club2['path']}")
+            st.markdown(f"**Path:** {club2['path']}")
 
 # Logic to determine if clubs can meet
 def can_meet(club1, club2):
@@ -106,4 +112,9 @@ can_play, message = can_meet(club1, club2)
 # Display result with color feedback
 st.markdown("### Result")
 result_color = "green" if can_play else "red"
-st.markdown(f"<div style='padding: 1em; background-color: {result_color}; color: white; text-align: center; font-size: 1.2em;'>\n{message}\n</div>", unsafe_allow_html=True)
+st.markdown(
+    f"<div style='padding: 1em; background-color: {result_color}; color: white; text-align: center; font-size: 1.2em;'>"
+    f"{message}"
+    f"</div>",
+    unsafe_allow_html=True
+)
