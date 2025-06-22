@@ -15,9 +15,9 @@ club_names = [club["club"] for club in sorted_clubs]
 
 # Competition logos URLs (SVG or PNG links)
 competition_logos = {
-    "UCL": "https://upload.wikimedia.org/wikipedia/en/3/3a/UEFA_Champions_League_logo_2.svg",
-    "UEL": "https://upload.wikimedia.org/wikipedia/en/f/f8/UEFA_Europa_League_logo_2021.svg",
-    "UECL": "https://upload.wikimedia.org/wikipedia/en/6/6a/UEFA_Conference_League_logo.svg"
+    "UCL": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3a/UEFA_Champions_League_logo_2.svg/120px-UEFA_Champions_League_logo_2.svg.png",
+    "UEL": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f8/UEFA_Europa_League_logo_2021.svg/120px-UEFA_Europa_League_logo_2021.svg.png",
+    "UECL": "https://upload.wikimedia.org/wikipedia/en/thumb/6/6a/UEFA_Conference_League_logo.svg/120px-UEFA_Conference_League_logo.svg.png"
 }
 
 # Club selection UI
