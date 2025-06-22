@@ -13,89 +13,74 @@ clubs_data = load_clubs()
 sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
 club_names = [club["club"] for club in sorted_clubs]
 
-# Competition logos URLs (SVG or PNG links)
-competition_logos = {
-    "UCL": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3a/UEFA_Champions_League_logo_2.svg/120px-UEFA_Champions_League_logo_2.svg.png",
-    "UEL": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f8/UEFA_Europa_League_logo_2021.svg/120px-UEFA_Europa_League_logo_2021.svg.png",
-    "UECL": "https://upload.wikimedia.org/wikipedia/en/thumb/6/6a/UEFA_Conference_League_logo.svg/120px-UEFA_Conference_League_logo.svg.png"
+# Full stage names mapping
+stage_full_names = {
+    "Q1": "First Qualifying Round",
+    "Q2": "Second Qualifying Round",
+    "Q3": "Third Qualifying Round",
+    "PO": "Play-Off Round",
+    "GS": "Group Stage",
+    "R16": "Round of 16",
+    "QF": "Quarter-Finals",
+    "SF": "Semi-Finals",
+    "F": "Final"
 }
 
-# Club selection UI
+# Competition logos (PNG direct URLs)
+competition_logos = {
+    "UCL": "https://upload.wikimedia.org/wikipedia/en/1/11/UEFA_Champions_League_logo_2.svg.png",
+    "UEL": "https://upload.wikimedia.org/wikipedia/en/6/63/UEFA_Europa_League_logo_2021.png",
+    "UECL": "https://upload.wikimedia.org/wikipedia/en/4/49/UEFA_Conference_League_logo.png"
+}
+
+# Helper to get club info by club name
+def get_club_info(name):
+    return next((club for club in clubs_data if club["club"] == name), None)
+
+# Show club crest + competition logo + entry stage (full name) above dropdown
+def show_club_info(club):
+    if not club:
+        st.write("Club info not found")
+        return
+    cols = st.columns([1, 0.75])  # crest and competition logo side by side
+    with cols[0]:
+        st.image(club.get("crest_url"), width=120)
+    with cols[1]:
+        comp_logo = competition_logos.get(club.get("competition"))
+        if comp_logo:
+            st.image(comp_logo, width=90)
+    entry_stage_full = stage_full_names.get(club.get("entry_stage"), club.get("entry_stage"))
+    st.markdown(f"**Entry Stage:** {entry_stage_full}")
+
+# Layout: two columns with dropdowns
 col1, col2 = st.columns(2)
 
 with col1:
     selected_club_1 = st.selectbox("Select Club 1", club_names, key="club1")
+    club1 = get_club_info(selected_club_1)
+    show_club_info(club1)
 
 with col2:
     selected_club_2 = st.selectbox("Select Club 2", club_names, key="club2")
+    club2 = get_club_info(selected_club_2)
+    show_club_info(club2)
 
-# Retrieve full club info by club name
-def get_club_info(name):
-    return next((club for club in clubs_data if club["club"] == name), None)
-
-club1 = get_club_info(selected_club_1)
-club2 = get_club_info(selected_club_2)
-
-# Function to display crest + competition logo side by side
-def show_club_and_competition_images(club):
-    img_col1, img_col2 = st.columns([1, 0.75])  # competition logo is 75% width of crest approx
-
-    with img_col1:
-        if club.get("crest_url"):
-            st.image(club["crest_url"], width=120)
-        else:
-            st.write("No crest available")
-
-    with img_col2:
-        comp_logo_url = competition_logos.get(club["competition"])
-        if comp_logo_url:
-            st.image(comp_logo_url, width=90)  # 75% of 120 is 90
-        else:
-            st.write("No competition logo available")
-
-# Display club 1 images and entry stage info
-with col1:
-    show_club_and_competition_images(club1)
-    st.markdown(f"**Entry Stage:** {club1.get('entry_stage', 'Unknown')}")
-
-# Display club 2 images and entry stage info
-with col2:
-    show_club_and_competition_images(club2)
-    st.markdown(f"**Entry Stage:** {club2.get('entry_stage', 'Unknown')}")
-
-# Logic to determine if clubs can meet
-def can_meet(club1, club2):
-    if not club1 or not club2 or club1 == club2:
+# Example logic for match possibility (basic placeholder, customize as needed)
+def can_meet(c1, c2):
+    if not c1 or not c2 or c1 == c2:
         return False, "Invalid club selection."
-
-    # Same country clubs can't meet in Group Stage
-    if club1["country"] == club2["country"] and club1["competition"] == club2["competition"]:
-        return True, "They can only meet after the Group Stage due to same-country restriction."
-
-    # Russian clubs currently suspended (example logic)
-    if "Russia" in [club1["country"], club2["country"]]:
-        return False, "Russian clubs are suspended from UEFA competitions."
-
-    # Serbia vs Kosovo, Armenia vs Azerbaijan exclusions (simplified)
-    blocked_pairs = [
-        ("Serbia", "Kosovo"),
-        ("Armenia", "Azerbaijan")
-    ]
-    for c1, c2 in blocked_pairs:
-        if {club1["country"], club2["country"]} == {c1, c2}:
-            return False, f"{c1} and {c2} clubs are not allowed to meet in UEFA competitions."
-
-    # Add further detailed logic here if needed
-
-    return True, "These clubs can potentially meet in UEFA competitions."
+    if c1["country"] == c2["country"] and c1["competition"] == c2["competition"]:
+        return True, "Same country clubs can meet only after the Group Stage."
+    # Add your advanced logic here
+    return True, "These clubs can potentially meet."
 
 can_play, message = can_meet(club1, club2)
 
-# Display result with color feedback
 st.markdown("### Result")
 result_color = "green" if can_play else "red"
 st.markdown(
-    f"<div style='padding: 1em; background-color: {result_color}; color: white; "
-    f"text-align: center; font-size: 1.2em;'>{message}</div>",
-    unsafe_allow_html=True
+    f"<div style='padding: 1em; background-color: {result_color}; color: white; text-align: center; font-size: 1.2em;'>"
+    f"{message}"
+    "</div>",
+    unsafe_allow_html=True,
 )
