@@ -23,10 +23,14 @@ stage_full_names = {
 
 # Use PNG logos for Streamlit compatibility
 competition_logos = {
-    "UCL": "https://www.citypng.com/photo/2a898f22/uefa-champions-league-official-logo",
-    "UEL": "https://www.citypng.com/photo/b3ef997b/uefa-europa-league-logo",
-    "UECL": "https://www.fifplay.com/uel-logo/"
+    "UCL": "https://upload.wikimedia.org/wikipedia/en/thumb/0/04/UEFA_Champions_League_logo_2.svg/1200px-UEFA_Champions_League_logo_2.svg.png",
+    "UEL": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f1/UEFA_Europa_League_logo_2015.svg/1200px-UEFA_Europa_League_logo_2015.svg.png",
+    "UECL": "https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/UEFA_Europa_Conference_League_logo.svg/1200px-UEFA_Europa_Conference_League_logo.svg.png"
 }
+
+# When showing the competition logo:
+if club.get("competition") in competition_logos:
+    st.image(competition_logos[club["competition"]], width=90)
 
 sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
 club_names = [club["club"] for club in sorted_clubs]
