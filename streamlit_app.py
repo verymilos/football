@@ -58,22 +58,24 @@ def get_club_info(name):
 club1 = get_club_info(selected_club_1)
 club2 = get_club_info(selected_club_2)
 
-# Display club info
+# Display club info without repeating club name
 info_col1, info_col2 = st.columns(2)
 
 with info_col1:
-    st.markdown(f"**{club1['club']} ({club1['country']})**")
-    st.markdown(f"Competition: {club1['competition']}")
-    st.markdown(f"Stage: {club1['entry_stage']}")
-    if club1.get("path"):
-        st.markdown(f"Path: {club1['path']}")
+    if club1:
+        st.markdown(f"Country: {club1.get('country', 'N/A')}")
+        st.markdown(f"Competition: {club1.get('competition', 'N/A')}")
+        st.markdown(f"Stage: {club1.get('entry_stage', 'N/A')}")
+        if club1.get("path"):
+            st.markdown(f"Path: {club1['path']}")
 
 with info_col2:
-    st.markdown(f"**{club2['club']} ({club2['country']})**")
-    st.markdown(f"Competition: {club2['competition']}")
-    st.markdown(f"Stage: {club2['entry_stage']}")
-    if club2.get("path"):
-        st.markdown(f"Path: {club2['path']}")
+    if club2:
+        st.markdown(f"Country: {club2.get('country', 'N/A')}")
+        st.markdown(f"Competition: {club2.get('competition', 'N/A')}")
+        st.markdown(f"Stage: {club2.get('entry_stage', 'N/A')}")
+        if club2.get("path"):
+            st.markdown(f"Path: {club2['path']}")
 
 # Logic to determine if clubs can meet
 def can_meet(club1, club2):
