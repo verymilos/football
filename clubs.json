@@ -1,5 +1,4 @@
 [
-  // ==== UCL Q1 ====
   {"club": "Breiðablik", "country": "Iceland", "competition": "UCL", "entry_stage": "Q1"},
   {"club": "Budućnost Podgorica", "country": "Montenegro", "competition": "UCL", "entry_stage": "Q1"},
   {"club": "Differdange 03", "country": "Luxembourg", "competition": "UCL", "entry_stage": "Q1"},
@@ -28,7 +27,6 @@
   {"club": "Zalgiris", "country": "Lithuania", "competition": "UCL", "entry_stage": "Q1"},
   {"club": "Zrinjski Mostar", "country": "Bosnia", "competition": "UCL", "entry_stage": "Q1"},
 
-  // ==== UCL Q2 CHAMPIONS PATH ====
   {"club": "Copenhagen", "country": "Denmark", "competition": "UCL", "entry_stage": "Q2", "path": "Champions"},
   {"club": "Crvena Zvezda", "country": "Serbia", "competition": "UCL", "entry_stage": "Q2", "path": "Champions"},
   {"club": "Dynamo Kiev", "country": "Ukraine", "competition": "UCL", "entry_stage": "Q2", "path": "Champions"},
@@ -40,7 +38,6 @@
   {"club": "Rijeka", "country": "Croatia", "competition": "UCL", "entry_stage": "Q2", "path": "Champions"},
   {"club": "Slovan Bratislava", "country": "Slovakia", "competition": "UCL", "entry_stage": "Q2", "path": "Champions"},
 
-  // ==== UCL Q2 LEAGUE PATH ====
   {"club": "Brann Bergen", "country": "Norway", "competition": "UCL", "entry_stage": "Q2", "path": "League"},
   {"club": "Panathinaikos", "country": "Greece", "competition": "UCL", "entry_stage": "Q2", "path": "League"},
   {"club": "Rangers", "country": "Scotland", "competition": "UCL", "entry_stage": "Q2", "path": "League"},
@@ -48,24 +45,17 @@
   {"club": "Servette", "country": "Switzerland", "competition": "UCL", "entry_stage": "Q2", "path": "League"},
   {"club": "Viktoria Plzeň", "country": "Czechia", "competition": "UCL", "entry_stage": "Q2", "path": "League"},
 
-  // ==== UCL Q3 CHAMPIONS PATH ====
-
-  // ==== UCL Q3 LEAGUE PATH ====
   {"club": "Benfica", "country": "Portugal", "competition": "UCL", "entry_stage": "Q3", "path": "League"},
   {"club": "Club Brugge", "country": "Belgium", "competition": "UCL", "entry_stage": "Q3", "path": "League"},
   {"club": "Fenerbahce", "country": "Turkey", "competition": "UCL", "entry_stage": "Q3", "path": "League"},
   {"club": "Feyenoord", "country": "Netherlands", "competition": "UCL", "entry_stage": "Q3", "path": "League"},
   {"club": "Nice", "country": "France", "competition": "UCL", "entry_stage": "Q3", "path": "League"},
 
-  // ==== UCL PLAYOFFS CHAMPIONS PATH ====
   {"club": "Basel", "country": "Switzerland", "competition": "UCL", "entry_stage": "PO", "path": "Champions"},
   {"club": "Bodø/Glimt", "country": "Norway", "competition": "UCL", "entry_stage": "PO", "path": "Champions"},
   {"club": "Celtic", "country": "Scotland", "competition": "UCL", "entry_stage": "PO", "path": "Champions"},
   {"club": "Sturm Graz", "country": "Austria", "competition": "UCL", "entry_stage": "PO", "path": "Champions"},
 
-  // ==== UCL PLAYOFFS LEAGUE PATH ====
-
-  // ==== UCL GROUP STAGE ====
   {"club": "PSG", "country": "France", "competition": "UCL", "entry_stage": "GS"},
   {"club": "Tottenham Hotspur", "country": "England", "competition": "UCL", "entry_stage": "GS"},
   {"club": "Liverpool", "country": "England", "competition": "UCL", "entry_stage": "GS"},
@@ -96,9 +86,6 @@
   {"club": "Slavia Prague", "country": "Czechia", "competition": "UCL", "entry_stage": "GS"},
   {"club": "Olympiacos", "country": "Greece", "competition": "UCL", "entry_stage": "GS"},
 
-  // ===================================================================================================
-
-  // ==== UEL Q1 ====
   {"club": "AEK Larnaca", "country": "Cyprus", "competition": "UEL", "entry_stage": "Q1"},
   {"club": "Aktobe", "country": "Kazakhstan", "competition": "UEL", "entry_stage": "Q1"},
   {"club": "Celje", "country": "Slovenia", "competition": "UEL", "entry_stage": "Q1"},
@@ -116,7 +103,6 @@
   {"club": "Sheriff Tiraspol", "country": "Moldova", "competition": "UEL", "entry_stage": "Q1"},
   {"club": "Spartak Trnava", "country": "Slovakia", "competition": "UEL", "entry_stage": "Q1"},
 
-  // ==== UEL Q2 ====
   {"club": "Anderlecht", "country": "Belgium", "competition": "UEL", "entry_stage": "Q2", "path": "Champions"},
   {"club": "Baník Ostrava", "country": "Czechia", "competition": "UEL", "entry_stage": "Q2", "path": "Champions"},
   {"club": "Beşiktaş", "country": "Turkey", "competition": "UEL", "entry_stage": "Q2", "path": "Champions"},
@@ -126,22 +112,15 @@
   {"club": "Midtjylland", "country": "Denmark", "competition": "UEL", "entry_stage": "Q2", "path": "Champions"},
   {"club": "Utrecht", "country": "Netherlands", "competition": "UEL", "entry_stage": "Q2", "path": "Champions"},
 
-  // ==== UEL Q3 CHAMPIONS PATH ====
-
-  // ==== UEL Q3 MAIN PATH ====
   {"club": "Fredrikstad", "country": "Norway", "competition": "UEL", "entry_stage": "Q3", "path": "Main"},
   {"club": "PAOK", "country": "Greece", "competition": "UEL", "entry_stage": "Q3", "path": "Main"},
   {"club": "Wolfsberg", "country": "Austria", "competition": "UEL", "entry_stage": "Q3", "path": "Main"},
   
-  // ==== UEL PLAYOFFS ====
   {"club": "Genk", "country": "Belgium", "competition": "UEL", "entry_stage": "PO"},
   {"club": "Samsunspor", "country": "Turkey", "competition": "UEL", "entry_stage": "PO"},
   {"club": "Sigma Olomouc", "country": "Czechia", "competition": "UEL", "entry_stage": "PO"},
   {"club": "Young Boys", "country": "Switzerland", "competition": "UEL", "entry_stage": "PO"},
 
-  // ===================================================================================================
-
-  // ==== UECL Q1 ====
   {"club": "Koper", "country": "Slovenia", "competition": "UECL", "entry_stage": "Q1"},
   {"club": "Petrocub Hîncești", "country": "Moldova", "competition": "UECL", "entry_stage": "Q1"},
   {"club": "Malisheva", "country": "Kosovo*", "competition": "UECL", "entry_stage": "Q1"},
@@ -191,9 +170,6 @@
   {"club": "La Fiorita", "country": "San Marino", "competition": "UECL", "entry_stage": "Q1"},
   {"club": "Tre Fiori", "country": "San Marino", "competition": "UECL", "entry_stage": "Q1"},
 
-  // ==== UECL Q2 CHAMPIONS PATH ====
-
-  // ==== UECL Q2 MAIN PATH ====
   {"club": "AZ Alkmaar", "country": "Netherlands", "competition": "UECL", "entry_stage": "Q2", "path": "Main"},
   {"club": "Santa Clara", "country": "Portugal", "competition": "UECL", "entry_stage": "Q2", "path": "Main"},
   {"club": "Charleroi", "country": "Belgium", "competition": "UECL", "entry_stage": "Q2", "path": "Main"},
@@ -251,17 +227,9 @@
   {"club": "Spaeri", "country": "Georgia", "competition": "UECL", "entry_stage": "Q2", "path": "Main"},
   {"club": "Dinamo City", "country": "Belgium", "competition": "UECL", "entry_stage": "Q2", "path": "Main"},
 
-  // ==== UECL Q3 CHAMPIONS PATH ====
-
-  // ==== UECL Q3 MAIN PATH ====
-  
-  // ==== UECL PLAYOFFS MAIN PATH ====
   {"club": "Nottingham Forest", "country": "England", "competition": "UECL", "entry_stage": "Q3", "path": "Main"},
   {"club": "Fiorentina", "country": "Italy", "competition": "UECL", "entry_stage": "Q3", "path": "Main"},
   {"club": "Rayo Vallecano", "country": "Spain", "competition": "UECL", "entry_stage": "Q3", "path": "Main"},
   {"club": "Mainz 05", "country": "Germany", "competition": "UECL", "entry_stage": "Q3", "path": "Main"},
-  {"club": "Strasbourg", "country": "Spain", "competition": "UECL", "entry_stage": "Q3", "path": "Main"}
-  
-  // ==== UECL PLAYOFFS CHAMPIONS PATH ====
-   
+  {"club": "Strasbourg", "country": "Spain", "competition": "UECL", "entry_stage": "Q3", "path": "Main"}   
 ]
