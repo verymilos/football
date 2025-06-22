@@ -158,10 +158,23 @@ def can_meet(club1, club2):
             return False
 
         if path_exists(comp1, stage1, comp2, stage2):
-            return True, f"{c1_name} may face {c2_name} after dropping from {comp1} {stage_full_names.get(stage1, stage1)} to {comp2} {stage_full_names.get(stage2, stage2)}."
+            return True, (
+        f"{c1_name} may face {c2_name} after dropping from {comp1} "
+        f"{stage_full_names.get(stage1, stage1)} to {comp2} "
+        f"{stage_full_names.get(stage2, stage2)}."
+    ), "maybe"
+            
         if path_exists(comp2, stage2, comp1, stage1):
-            return True, f"{c2_name} may face {c1_name} after dropping from {comp2} {stage_full_names.get(stage2, stage2)} to {comp1} {stage_full_names.get(stage1, stage1)}."
-        return False, f"No direct competition path for {c1_name} in {comp1} and {c2_name} in {comp2} to meet at these stages."
+    return True, (
+        f"{c2_name} may face {c1_name} after dropping from {comp2} "
+        f"{stage_full_names.get(stage2, stage2)} to {comp1} "
+        f"{stage_full_names.get(stage1, stage1)}."
+    ), "maybe"
+    
+return False, (
+    f"No direct competition path for {c1_name} in {comp1} and "
+    f"{c2_name} in {comp2} to meet at these stages."
+), "cannot"
 
     # Same competition: compare stages
     idx1 = stage_index(stage1)
