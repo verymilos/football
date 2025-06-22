@@ -10,7 +10,7 @@ def load_clubs():
 clubs_data = load_clubs()
 
 # Sort clubs alphabetically
-sorted_clubs = sorted(clubs_data, key=lambda x: x["name"])
+sorted_clubs = sorted(clubs_data, key=lambda x: x["club"])
 club_names = [club["name"] for club in sorted_clubs]
 
 # Club selection UI
